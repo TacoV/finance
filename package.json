@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.36.0",
+    "primevue": "^3.35.0",
     "vue": "^3.3.4"
   },
   "devDependencies": {
