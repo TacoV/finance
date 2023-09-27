@@ -32,17 +32,16 @@ async function signOut() {
 
 supabase.auth.onAuthStateChange((event, session) => {
   userSession.value = session
-  if (userSession.value?.user.id) {
+  if (getUid()) {
     retrieveFiles()
   }
 })
 
 async function uploadFile(uploadEvent: FileUploadUploaderEvent) {
-  const folder = userSession.value?.user.id
   for (const bestand of uploadEvent.files as File[]) {
     const { error } = await supabase.storage
       .from(bucketName)
-      .upload(folder + '/' + bestand.name, bestand)
+      .upload(getUid() + '/' + bestand.name, bestand)
     if (error) {
       alert('Error uploading: ' + error.message)
     }
@@ -51,13 +50,27 @@ async function uploadFile(uploadEvent: FileUploadUploaderEvent) {
 }
 
 async function retrieveFiles() {
-  const { data, error } = await supabase.storage.from(bucketName).list(userSession.value?.user.id)
+  const { data, error } = await supabase.storage.from(bucketName).list(getUid())
   if (error) {
     alert('Error listing files: ' + error.message)
   }
   if (data) {
     fileList.value = data
   }
+}
+
+function getUid() {
+  return userSession.value?.user.id
+}
+
+async function deleteFile(filename: string) {
+  const { error } = await supabase.storage
+    .from(bucketName)
+    .remove([getUid() + '/' + filename])
+  if (error) {
+    alert('Error deleting file: ' + error.message)
+  }
+  await retrieveFiles()
 }
 </script>
 
@@ -67,7 +80,9 @@ async function retrieveFiles() {
   </div>
   <div v-else>
     <ul>
-      <li v-for="file in fileList">{{ file.name }}</li>
+      <li v-for="file in fileList" v-bind:key="file.name">
+        {{ file.name }} - <button @click="deleteFile(file.name)">del</button>
+      </li>
     </ul>
     <FileUpload mode="basic" name="csvfiles[]" customUpload @uploader="uploadFile" :auto="true" />
     <Button :label="'Log out ' + userSession?.user.user_metadata.full_name" @click="signOut" />
