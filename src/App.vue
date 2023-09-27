@@ -70,10 +70,6 @@ async function deleteFile(filename: string) {
   }
   await retrieveFiles()
 }
-
-async function processFiles() {
-  // Process
-}
 </script>
 
 <template>
@@ -83,13 +79,25 @@ async function processFiles() {
   <div v-else>
     <ul>
       <li v-for="file in fileList" v-bind:key="file.name">
-        {{ file.name }} - <button @click="deleteFile(file.name)">
+        {{ file.name }} -
+        <button @click="deleteFile(file.name)">
           <i class="pi pi-trash"></i>
         </button>
       </li>
     </ul>
-    <FileUpload mode="basic" name="csvfiles[]" customUpload @uploader="uploadFile" :auto="true" />
-    <Button v-if="fileList.length > 0" label="Process files" @click="processFiles" />
+    <FileUpload
+      name="csvfiles[]"
+      :multiple="true"
+      customUpload
+      @uploader="uploadFile"
+      :auto="true"
+      chooseLabel="Save to storage"
+    >
+      <template #empty>
+        <p>Drag and drop files to here to upload.</p>
+      </template></FileUpload
+    >
+
     <Button :label="'Log out ' + userSession?.user.user_metadata.full_name" @click="signOut" />
   </div>
 </template>
