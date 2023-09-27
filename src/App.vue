@@ -70,6 +70,10 @@ async function deleteFile(filename: string) {
   }
   await retrieveFiles()
 }
+
+function processFiles() {
+  //
+}
 </script>
 
 <template>
@@ -77,6 +81,7 @@ async function deleteFile(filename: string) {
     <Button label="Log in" @click="signInWithGoogle" />
   </div>
   <div v-else>
+    <Button :disabled="fileList.length == 0" label="Process" @click="processFiles" />
     <ul>
       <li v-for="file in fileList" v-bind:key="file.name">
         {{ file.name }} -
@@ -90,14 +95,15 @@ async function deleteFile(filename: string) {
       :multiple="true"
       customUpload
       @uploader="uploadFile"
+      :showUploadButton="false"
+      :showCancelButton="false"
       :auto="true"
-      chooseLabel="Save to storage"
+      chooseLabel="Select file(s)"
     >
       <template #empty>
         <p>Drag and drop files to here to upload.</p>
       </template></FileUpload
     >
-
     <Button :label="'Log out ' + userSession?.user.user_metadata.full_name" @click="signOut" />
   </div>
 </template>
