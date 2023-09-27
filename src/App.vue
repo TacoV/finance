@@ -71,8 +71,17 @@ async function deleteFile(filename: string) {
   await retrieveFiles()
 }
 
-function processFiles() {
-  //
+async function processFiles() {
+  const { data, error } = await supabase.functions.invoke('process-files', {
+    body: { name: 'bar' }
+  })
+  if (error) {
+    alert('Error processing files: ' + error.message)
+    console.log(error)
+  }
+  if (data) {
+    alert(data)
+  }
 }
 </script>
 
