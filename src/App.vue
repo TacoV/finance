@@ -2,8 +2,8 @@
 import { createClient } from '@supabase/supabase-js'
 import { ref } from 'vue'
 import { type Session } from '@supabase/gotrue-js/dist/main/lib/types'
-import type FileUpload from 'primevue/fileupload'
-import type FileUploadUploaderEvent from 'primevue/fileupload'
+import FileUpload from 'primevue/fileupload'
+import { type FileUploadUploaderEvent } from 'primevue/fileupload'
 
 const supabase = createClient(
   import.meta.env.VITE_SUPABASE_URL,
@@ -32,14 +32,11 @@ supabase.auth.onAuthStateChange((event, session) => {
 })
 
 async function uploadFile(uploadEvent: FileUploadUploaderEvent) {
-  const file:File = uploadEvent.files[0]
-  const { data, error } =
-    await supabase.storage.from('dumps').upload(file.name, file)
-  if (error) {
-    alert('Error uploading: ' + error.message)
-  } else {
-    alert('Upload succesful!')
-    console.log(data)
+  for (const bestand of uploadEvent.files as File[]) {
+    const { error } = await supabase.storage.from('dumps').upload(bestand.name, bestand)
+    if (error) {
+      alert('Error uploading: ' + error.message)
+    }
   }
 }
 </script>
