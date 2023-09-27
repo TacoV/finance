@@ -64,13 +64,15 @@ function getUid() {
 }
 
 async function deleteFile(filename: string) {
-  const { error } = await supabase.storage
-    .from(bucketName)
-    .remove([getUid() + '/' + filename])
+  const { error } = await supabase.storage.from(bucketName).remove([getUid() + '/' + filename])
   if (error) {
     alert('Error deleting file: ' + error.message)
   }
   await retrieveFiles()
+}
+
+async function processFiles() {
+  // Process
 }
 </script>
 
@@ -81,10 +83,13 @@ async function deleteFile(filename: string) {
   <div v-else>
     <ul>
       <li v-for="file in fileList" v-bind:key="file.name">
-        {{ file.name }} - <button @click="deleteFile(file.name)">del</button>
+        {{ file.name }} - <button @click="deleteFile(file.name)">
+          <i class="pi pi-trash"></i>
+        </button>
       </li>
     </ul>
     <FileUpload mode="basic" name="csvfiles[]" customUpload @uploader="uploadFile" :auto="true" />
+    <Button v-if="fileList.length > 0" label="Process files" @click="processFiles" />
     <Button :label="'Log out ' + userSession?.user.user_metadata.full_name" @click="signOut" />
   </div>
 </template>
