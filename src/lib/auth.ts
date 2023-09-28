@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase'
+import { retrieveFiles } from '@/lib/filestore'
 import { type Session } from '@supabase/gotrue-js/dist/main/lib/types'
 import { ref } from 'vue'
 
@@ -10,6 +11,9 @@ function getUid() {
 
 supabase.auth.onAuthStateChange((event, session) => {
   userSession.value = session
+  if (getUid()) {
+    retrieveFiles()
+  }
 })
 
 async function signInWithGoogle() {
