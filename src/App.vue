@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import FileUpload from 'primevue/fileupload'
 import { userSession, signInWithGoogle, signOut } from '@/lib/auth'
-import { fileList, uploadFile, deleteFile } from '@/lib/filestore'
+import { fileList, uploadFile, deleteFile, processFiles } from '@/lib/filestore'
 </script>
 
 <template>
@@ -9,6 +9,7 @@ import { fileList, uploadFile, deleteFile } from '@/lib/filestore'
     <Button label="Log in" @click="signInWithGoogle" />
   </div>
   <div v-else>
+    <Button :disabled="fileList.length == 0" label="Process" @click="processFiles" />
     <ul>
       <li v-for="file in fileList" v-bind:key="file.name">
         {{ file.name }} -
@@ -22,8 +23,10 @@ import { fileList, uploadFile, deleteFile } from '@/lib/filestore'
       :multiple="true"
       customUpload
       @uploader="uploadFile"
+      :showUploadButton="false"
+      :showCancelButton="false"
       :auto="true"
-      chooseLabel="Save to storage"
+      chooseLabel="Select file(s)"
     >
       <template #empty>
         <p>Drag and drop files to here to upload.</p>
