@@ -1,88 +1,7 @@
 <script setup lang="ts">
-import { createClient } from '@supabase/supabase-js'
-import { ref } from 'vue'
-import { type Session } from '@supabase/gotrue-js/dist/main/lib/types'
 import FileUpload from 'primevue/fileupload'
-import { type FileUploadUploaderEvent } from 'primevue/fileupload'
-
-const bucketName = 'dumps'
-const supabase = createClient(
-  import.meta.env.VITE_SUPABASE_URL,
-  import.meta.env.VITE_SUPABASE_ANON_KEY
-)
-
-const userSession = ref<Session | null>(null)
-const fileList = ref<any[]>([])
-
-async function signInWithGoogle() {
-  const { error } = await supabase.auth.signInWithOAuth({
-    provider: 'google'
-  })
-  if (error) {
-    alert('Error logging in: ' + error.message)
-  }
-}
-
-async function signOut() {
-  const { error } = await supabase.auth.signOut()
-  if (error) {
-    alert('Error logging out: ' + error.message)
-  }
-}
-
-supabase.auth.onAuthStateChange((event, session) => {
-  userSession.value = session
-  if (getUid()) {
-    retrieveFiles()
-  }
-})
-
-async function uploadFile(uploadEvent: FileUploadUploaderEvent) {
-  for (const bestand of uploadEvent.files as File[]) {
-    const { error } = await supabase.storage
-      .from(bucketName)
-      .upload(getUid() + '/' + bestand.name, bestand)
-    if (error) {
-      alert('Error uploading: ' + error.message)
-    }
-  }
-  await retrieveFiles()
-}
-
-async function retrieveFiles() {
-  const { data, error } = await supabase.storage.from(bucketName).list(getUid())
-  if (error) {
-    alert('Error listing files: ' + error.message)
-  }
-  if (data) {
-    fileList.value = data
-  }
-}
-
-function getUid() {
-  return userSession.value?.user.id
-}
-
-async function deleteFile(filename: string) {
-  const { error } = await supabase.storage.from(bucketName).remove([getUid() + '/' + filename])
-  if (error) {
-    alert('Error deleting file: ' + error.message)
-  }
-  await retrieveFiles()
-}
-
-async function processFiles() {
-  const { data, error } = await supabase.functions.invoke('process-files', {
-    body: { name: 'bar' }
-  })
-  if (error) {
-    alert('Error processing files: ' + error.message)
-    console.log(error)
-  }
-  if (data) {
-    alert(data)
-  }
-}
+import { userSession, signInWithGoogle, signOut } from '@/lib/auth'
+import { fileList, uploadFile, deleteFile } from '@/lib/filestore'
 </script>
 
 <template>
@@ -90,7 +9,6 @@ async function processFiles() {
     <Button label="Log in" @click="signInWithGoogle" />
   </div>
   <div v-else>
-    <Button :disabled="fileList.length == 0" label="Process" @click="processFiles" />
     <ul>
       <li v-for="file in fileList" v-bind:key="file.name">
         {{ file.name }} -
@@ -104,15 +22,14 @@ async function processFiles() {
       :multiple="true"
       customUpload
       @uploader="uploadFile"
-      :showUploadButton="false"
-      :showCancelButton="false"
       :auto="true"
-      chooseLabel="Select file(s)"
+      chooseLabel="Save to storage"
     >
       <template #empty>
         <p>Drag and drop files to here to upload.</p>
       </template></FileUpload
     >
+
     <Button :label="'Log out ' + userSession?.user.user_metadata.full_name" @click="signOut" />
   </div>
 </template>
