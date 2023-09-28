@@ -4,13 +4,14 @@
 
 import { serve } from 'https://deno.land/std@0.177.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { parse } from 'https://esm.sh/csv-parse/sync'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type'
 }
 
-async function processFilesForAuthenticatedUser(supabase: SupabaseClient) {
+async function processFilesForAuthenticatedUser(supabase) {
   // Retrieve authenticated user
   const {
     data: { user }
@@ -20,15 +21,16 @@ async function processFilesForAuthenticatedUser(supabase: SupabaseClient) {
 
   // Retrieve list of all files in the bucket
   const bucketName = 'dumps'
-  const { data, error } = await supabase.storage.from(bucketName).list(user?.id)
-  if (error) {
-    alert('Error listing files: ' + error.message)
-    return
-  }
+  const { data: uploadedFiles } = await supabase.storage.from(bucketName).list(user?.id)
 
   // Loop through the files one by one
-  for (const row of data) {
-    console.log(row)
+  for (const uploadedFile of uploadedFiles) {
+    const { data: singleFile } = await supabase.storage
+      .from(bucketName)
+      .download(user?.id + '/' + uploadedFile.name)
+    const content = await singleFile.text()
+    const info = parse(content)
+    console.log(info[2])
     // Loop through each CSV row one by one
   }
 }

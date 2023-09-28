@@ -1,1 +1,1 @@
-npx supabase functions deploy process-files --project-ref qddizzxakdmsjmzbwadc
+npx supabase functions deploy --project-ref qddizzxakdmsjmzbwadc
