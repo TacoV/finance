@@ -48,5 +48,4 @@ async function processFiles() {
   }
 }
 
-
 export { fileList, uploadFile, deleteFile, retrieveFiles, processFiles }
