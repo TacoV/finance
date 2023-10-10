@@ -50,16 +50,13 @@ async function retrieveTopUntaggedTransactions() {
     >
 
     <Button label="List top untagged transactions" @click="retrieveTopUntaggedTransactions" />
-    <table>
-      <tr v-for="transaction in transactions">
-        <td>{{ transaction.amount }}</td>
-        <td>{{ transaction.counter_name }}</td>
-        <td>{{ transaction.bookdate }}</td>
-        <td>{{ transaction.amount }}</td>
-      </tr>
-    </table>
+    <DataTable :value="transactions" class="p-datatable-sm" tableStyle="min-width: 50rem">
+      <Column field="counter_name" header="Counterparty name"></Column>
+      <Column field="bookdate" header="Datum"></Column>
+      <Column field="amount" header="Bedrag"></Column>
+    </DataTable>
   </div>
-  <div>
+  <div v-if="userSession !== null">
     <Button :label="'Log out ' + userSession?.user.user_metadata.full_name" @click="signOut" />
   </div>
 </template>
