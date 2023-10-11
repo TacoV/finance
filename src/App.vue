@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { FilterMatchMode } from 'primevue/api';
+import { FilterMatchMode } from 'primevue/api'
 import { userSession, signInWithGoogle, signOut } from '@/lib/auth'
 import { fileList, uploadFile, deleteFile, processFiles } from '@/lib/filestore'
 
@@ -9,8 +9,8 @@ import { ref } from 'vue'
 const transactions = ref()
 
 const filters = ref({
-    counter_name: { value: null, matchMode: FilterMatchMode.CONTAINS },
-});
+  counter_name: { value: null, matchMode: FilterMatchMode.CONTAINS }
+})
 
 async function retrieveTopUntaggedTransactions() {
   const { data, error } = await supabase.from('transactions').select('*')
@@ -61,13 +61,13 @@ async function retrieveTopUntaggedTransactions() {
       :rows="50"
       tableStyle="min-width: 70rem"
     >
-    <!-- https://primevue.org/datatable/#basic_filter -->
+      <!-- https://primevue.org/datatable/#basic_filter -->
       <Column field="counter_name" header="Tegenpartij" style="min-width: 12rem">
         <template #body="{ data }">
-            {{ data.counter_name }}
+          {{ data.counter_name }}
         </template>
         <template #filter="{ filterModel, filterCallback }">
-            <InputText v-model="filterModel.value" @input="filterCallback()" />
+          <InputText v-model="filterModel.value" @input="filterCallback()" />
         </template>
       </Column>
       <Column field="bookdate" header="Datum"></Column>
