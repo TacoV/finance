@@ -1,18 +1,19 @@
 <script setup lang="ts">
-import FileUpload from 'primevue/fileupload'
+import { FilterMatchMode } from 'primevue/api';
 import { userSession, signInWithGoogle, signOut } from '@/lib/auth'
 import { fileList, uploadFile, deleteFile, processFiles } from '@/lib/filestore'
 
 import { supabase } from './lib/supabase'
 import { ref } from 'vue'
+
 const transactions = ref()
 
+const filters = ref({
+    counter_name: { value: null, matchMode: FilterMatchMode.CONTAINS },
+});
+
 async function retrieveTopUntaggedTransactions() {
-  const { data, error } = await supabase
-    .from('transactions')
-    .select('*')
-    .order('amount', { ascending: false })
-    .limit(10)
+  const { data, error } = await supabase.from('transactions').select('*')
   if (error) {
     alert('Error retrieving transactions: ' + error.message)
   }
@@ -50,13 +51,28 @@ async function retrieveTopUntaggedTransactions() {
     >
 
     <Button label="List top untagged transactions" @click="retrieveTopUntaggedTransactions" />
-    <DataTable :value="transactions" class="p-datatable-sm" tableStyle="min-width: 50rem">
-      <Column field="counter_name" header="Counterparty name"></Column>
+
+    <DataTable
+      :value="transactions"
+      v-model:filters="filters"
+      class="p-datatable-sm"
+      filterDisplay="row"
+      paginator
+      :rows="50"
+      tableStyle="min-width: 70rem"
+    >
+    <!-- https://primevue.org/datatable/#basic_filter -->
+      <Column field="counter_name" header="Tegenpartij" style="min-width: 12rem">
+        <template #body="{ data }">
+            {{ data.counter_name }}
+        </template>
+        <template #filter="{ filterModel, filterCallback }">
+            <InputText v-model="filterModel.value" @input="filterCallback()" />
+        </template>
+      </Column>
       <Column field="bookdate" header="Datum"></Column>
       <Column field="amount" header="Bedrag"></Column>
     </DataTable>
-  </div>
-  <div v-if="userSession !== null">
     <Button :label="'Log out ' + userSession?.user.user_metadata.full_name" @click="signOut" />
   </div>
 </template>
