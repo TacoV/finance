@@ -11,6 +11,7 @@ import FileUpload from 'primevue/fileupload'
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
 import InputText from 'primevue/inputtext'
+import Dialog from 'primevue/dialog'
 
 const app = createApp(App)
 app.use(PrimeVue)
@@ -19,4 +20,5 @@ app.component('FileUpload', FileUpload)
 app.component('DataTable', DataTable)
 app.component('Column', Column)
 app.component('InputText', InputText)
+app.component('Dialog', Dialog)
 app.mount('#app')
