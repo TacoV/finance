@@ -14,6 +14,21 @@ const corsHeaders = {
 function parseNumber(unparsed: String): Number {
   return parseFloat(unparsed.replace(',', '.').replace(' ', ''))
 }
+
+const knownAccounts = []
+async function getAccountIdFromAccountNo(supabase, account_no: string): Promise<number> {
+  if (knownAccounts[account_no]) {
+    return knownAccounts[account_no]
+  }
+  await supabase.from('accounts').insert({ account_no: account_no, account_name: account_no })
+  const { error, data } = await supabase.from('accounts').select('id').eq('account_no', account_no)
+  if (error) {
+    console.log('Error retrieving account_id', error.message)
+  }
+  knownAccounts[account_no] = data[0]?.id
+  return knownAccounts[account_no]
+}
+
 async function processFilesForAuthenticatedUser(supabase) {
   // Retrieve authenticated user
   const {
@@ -40,13 +55,12 @@ async function processFilesForAuthenticatedUser(supabase) {
       columns: true,
       skip_empty_lines: true
     })
-    console.log('info', info)
 
-    // Loop through each CSV row in parallel
+    // Loop through each CSV row
     const rows = [] as Object[]
     for (const record of info) {
       rows.push({
-        account_no: record['IBAN/BBAN'],
+        account_id: await getAccountIdFromAccountNo(supabase, record['IBAN/BBAN']),
         transaction_no: record['Volgnr'],
         owner: user?.id,
         counter_account: record['Tegenrekening IBAN/BBAN'],
@@ -57,15 +71,15 @@ async function processFilesForAuthenticatedUser(supabase) {
         eventual_name: record['"Naam uiteindelijke partij'],
         initiating_name: record['Naam initiërende partij'],
         book_code: record['Code'],
-        'description-1': record['Omschrijving-1'],
-        'description-2': record['Omschrijving-2'],
-        'description-3': record['Omschrijving-3']
+        description1: record['Omschrijving-1'],
+        description2: record['Omschrijving-2'],
+        description3: record['Omschrijving-3']
       })
     }
     console.log('rows', rows)
 
     const { error } = await supabase.from('transactions').insert(rows)
-    if ( error ) {
+    if (error) {
       console.log('Error inserting records', error.message)
     }
   }

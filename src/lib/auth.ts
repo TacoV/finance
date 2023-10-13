@@ -17,8 +17,12 @@ supabase.auth.onAuthStateChange((event, session) => {
 })
 
 async function signInWithGoogle() {
+  const currentLocation = window.location.protocol + '//' + window.location.host
   const { error } = await supabase.auth.signInWithOAuth({
-    provider: 'google'
+    provider: 'google',
+    options: {
+      redirectTo: currentLocation
+    }
   })
   if (error) {
     alert('Error logging in: ' + error.message)

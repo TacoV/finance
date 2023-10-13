@@ -39,7 +39,7 @@ const selectedRowsStats = computed(() => {
 })
 
 async function retrieveTopUntaggedTransactions() {
-  const { data, error } = await supabase.from('transactions_keyed').select('*')
+  const { data, error } = await supabase.from('transactions_overview').select('*')
   if (error) {
     alert('Error retrieving transactions: ' + error.message)
   }
