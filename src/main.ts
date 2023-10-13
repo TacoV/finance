@@ -12,6 +12,7 @@ import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
 import InputText from 'primevue/inputtext'
 import Dialog from 'primevue/dialog'
+import Tag from 'primevue/tag'
 
 const app = createApp(App)
 app.use(PrimeVue)
@@ -21,4 +22,5 @@ app.component('DataTable', DataTable)
 app.component('Column', Column)
 app.component('InputText', InputText)
 app.component('Dialog', Dialog)
+app.component('Tag', Tag)
 app.mount('#app')

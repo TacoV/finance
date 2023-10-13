@@ -2,6 +2,8 @@
 import { FilterMatchMode } from 'primevue/api'
 import { userSession, signInWithGoogle, signOut } from '@/lib/auth'
 import FileHandler from './FileHandler.vue'
+import TagsAdmin from './TagsAdmin.vue'
+import AccountsAdmin from './AccountsAdmin.vue'
 import { supabase } from './lib/supabase'
 import { ref, computed } from 'vue'
 
@@ -38,7 +40,7 @@ const selectedRowsStats = computed(() => {
   }, stats)
 })
 
-async function retrieveTopUntaggedTransactions() {
+async function retrieveTransactions() {
   const { data, error } = await supabase.from('transactions_overview').select('*')
   if (error) {
     alert('Error retrieving transactions: ' + error.message)
@@ -66,10 +68,15 @@ const formatCurrency = (value: number) => {
     />
   </div>
 
-  <div v-if="userSession !== null">
+  <div>
+    <AccountsAdmin />
+    <TagsAdmin v-if="false" />
+  </div>
+
+  <div v-if="userSession !== null && false">
     <FileHandler />
 
-    <Button label="Retrieve transactions" @click="retrieveTopUntaggedTransactions" />
+    <Button label="Retrieve transactions" @click="retrieveTransactions" />
 
     <div>
       Transactions: {{ selectedRowsStats.count }}<br />
