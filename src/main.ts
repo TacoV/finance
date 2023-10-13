@@ -1,6 +1,7 @@
 import './assets/main.css'
 import 'primevue/resources/themes/lara-light-indigo/theme.css'
 import 'primeicons/primeicons.css'
+import 'primeflex/primeflex.css'
 
 import { createApp } from 'vue'
 import App from './App.vue'
@@ -11,7 +12,6 @@ import FileUpload from 'primevue/fileupload'
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
 import InputText from 'primevue/inputtext'
-import Dialog from 'primevue/dialog'
 import Tag from 'primevue/tag'
 
 const app = createApp(App)
@@ -21,6 +21,5 @@ app.component('FileUpload', FileUpload)
 app.component('DataTable', DataTable)
 app.component('Column', Column)
 app.component('InputText', InputText)
-app.component('Dialog', Dialog)
 app.component('Tag', Tag)
 app.mount('#app')
