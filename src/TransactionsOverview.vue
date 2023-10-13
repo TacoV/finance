@@ -2,11 +2,16 @@
 import { FilterMatchMode } from 'primevue/api'
 import { supabase } from './lib/supabase'
 import { ref, computed } from 'vue'
+import CatLabel from './CatLabel.vue'
 
 const transactions = ref()
 
 const filters = ref({
-  counter_name: { value: null, matchMode: FilterMatchMode.CONTAINS }
+  account_name: { value: null, matchMode: FilterMatchMode.CONTAINS },
+  counter_name: { value: null, matchMode: FilterMatchMode.CONTAINS },
+  bookdate: { value: null, matchMode: FilterMatchMode.CONTAINS },
+  amount: { value: null, matchMode: FilterMatchMode.CONTAINS },
+  tag_name: { value: null, matchMode: FilterMatchMode.CONTAINS },
 })
 const selectedRows = ref()
 
@@ -47,19 +52,12 @@ async function retrieveTransactions() {
 const formatCurrency = (value: number) => {
   return value.toLocaleString('nl-NL', { style: 'currency', currency: 'EUR' })
 }
-const categoryStyle = (category: string) => {
-  const categoryColorlist = {
-    need: 'red',
-    want: 'darkgreen',
-    invest: 'grey',
-    untagged: 'lightgrey'
-  }
-  return { background: categoryColorlist[category] }
-}
+
+retrieveTransactions()
 </script>
 
 <template>
-  <Button label="Retrieve transactions" @click="retrieveTransactions" />
+  <!--<Button label="Retrieve transactions" @click="retrieveTransactions" />-->
 
   <div>
     Transactions: {{ selectedRowsStats.count }}<br />
@@ -81,7 +79,14 @@ const categoryStyle = (category: string) => {
     tableStyle="min-width: 70rem"
   >
     <Column selectionMode="multiple" headerStyle="width: 3rem"></Column>
-    <Column field="account_name" header="Rekening"></Column>
+    <Column field="account_name" header="Rekening">
+      <template #body="{ data }">
+        {{ data.account_name }}
+      </template>
+      <template #filter="{ filterModel, filterCallback }">
+        <InputText v-model="filterModel.value" @input="filterCallback()" />
+      </template>
+    </Column>
     <Column field="counter_name" header="Tegenpartij" style="min-width: 12rem">
       <template #body="{ data }">
         {{ data.counter_name }}
@@ -90,22 +95,30 @@ const categoryStyle = (category: string) => {
         <InputText v-model="filterModel.value" @input="filterCallback()" />
       </template>
     </Column>
-    <Column field="bookdate" header="Datum"></Column>
+    <Column field="bookdate" header="Datum">
+      <template #body="{ data }">
+        {{ data.bookdate }}
+      </template>
+      <template #filter="{ filterModel, filterCallback }">
+        <InputText v-model="filterModel.value" @input="filterCallback()" />
+      </template>
+    </Column>
     <Column field="amount" header="Bedrag">
       <template #body="{ data }">
         <span :class="data.amount > 0 ? 'credit' : 'debit'">
           {{ formatCurrency(data.amount) }}
         </span>
       </template>
+      <template #filter="{ filterModel, filterCallback }">
+        <InputText v-model="filterModel.value" @input="filterCallback()" />
+      </template>
     </Column>
     <Column field="tag_name" header="Tag">
       <template #body="{ data }">
-        <Tag
-          :style="categoryStyle(data.tag_category)"
-          v-if="data.tag_name"
-          :value="data.tag_name"
-        />
-        <Tag v-else :style="categoryStyle('untagged')" value="Untagged" />
+        <CatLabel :name="data.tag_name" :category="data.tag_category"/>
+      </template>
+      <template #filter="{ filterModel, filterCallback }">
+        <InputText v-model="filterModel.value" @input="filterCallback()" />
       </template>
     </Column>
   </DataTable>
