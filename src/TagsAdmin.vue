@@ -9,7 +9,7 @@ retrieveTags()
     <Column field="name" header="Name"></Column>
     <Column field="category" header="Category">
       <template #body="{ data }">
-        <CatLabel :name="data.name" :category="data.category"/>
+        <CatLabel :name="data.category" :category="data.category" />
       </template>
     </Column>
   </DataTable>

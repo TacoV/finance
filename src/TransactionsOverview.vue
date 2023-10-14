@@ -11,7 +11,7 @@ const filters = ref({
   counter_name: { value: null, matchMode: FilterMatchMode.CONTAINS },
   bookdate: { value: null, matchMode: FilterMatchMode.CONTAINS },
   amount: { value: null, matchMode: FilterMatchMode.CONTAINS },
-  tag_name: { value: null, matchMode: FilterMatchMode.CONTAINS },
+  tag_name: { value: null, matchMode: FilterMatchMode.CONTAINS }
 })
 const selectedRows = ref()
 
@@ -115,7 +115,7 @@ retrieveTransactions()
     </Column>
     <Column field="tag_name" header="Tag">
       <template #body="{ data }">
-        <CatLabel :name="data.tag_name" :category="data.tag_category"/>
+        <CatLabel :name="data.tag_name" :category="data.tag_category" />
       </template>
       <template #filter="{ filterModel, filterCallback }">
         <InputText v-model="filterModel.value" @input="filterCallback()" />

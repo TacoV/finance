@@ -13,6 +13,8 @@ import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
 import InputText from 'primevue/inputtext'
 import Tag from 'primevue/tag'
+import Accordion from 'primevue/accordion';
+import AccordionTab from 'primevue/accordiontab';
 
 const app = createApp(App)
 app.use(PrimeVue)
@@ -22,4 +24,6 @@ app.component('DataTable', DataTable)
 app.component('Column', Column)
 app.component('InputText', InputText)
 app.component('Tag', Tag)
+app.component('Accordion', Accordion)
+app.component('AccordionTab', AccordionTab)
 app.mount('#app')

@@ -8,13 +8,24 @@ import TransactionsOverview from './TransactionsOverview.vue'
 </script>
 
 <template>
-  <div>
-    <div v-if="userSession !== null">
-      <AccountsAdmin />
-      <TagsAdmin />
+  <Accordion :activeIndex="0" style="width: 1280px">
+    <AccordionTab header="1 - Log in">
+      <AuthHandler />
+    </AccordionTab>
+    <AccordionTab :disabled="userSession === null" header="2 - Upload je CSV dumps">
       <FileHandler />
+    </AccordionTab>
+    <AccordionTab :disabled="userSession === null" header="3 - Hernoem je rekeningen">
+      <AccountsAdmin />
+    </AccordionTab>
+    <AccordionTab :disabled="userSession === null" header="4 - Bepaal je categorieen">
+      <TagsAdmin />
+    </AccordionTab>
+    <AccordionTab :disabled="userSession === null" header="5 - Tag alles!">
       <TransactionsOverview />
-    </div>
-    <AuthHandler />
-  </div>
+    </AccordionTab>
+    <AccordionTab :disabled="userSession === null" header="6 - Delete">
+      Delete je files, je transacties of zelfs je userdata
+    </AccordionTab>
+  </Accordion>
 </template>
