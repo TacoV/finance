@@ -1,12 +1,14 @@
 <script setup lang="ts">
-import { tags, retrieveTags, categories } from './lib/tagstore'
+import { tags, retrieveTags, categories, addNewTag } from './lib/tagstore'
 import { ref } from 'vue'
 import CatLabel from './CatLabel.vue'
 retrieveTags()
 
 const newTag = ref<String>()
-const addTag = () => {
+const addTag = async () => {
+  const tagname = newTag.value
   newTag.value = ''
+  await addNewTag(tagname, 'need')
 }
 </script>
 

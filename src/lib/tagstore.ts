@@ -22,4 +22,12 @@ async function retrieveTags() {
   }
 }
 
-export { tags, retrieveTags, categories }
+async function addNewTag(tagname: String, category: string) {
+  tags.value.push({
+    id: 5555,
+    name: tagname,
+    category: category
+  })
+}
+
+export { tags, retrieveTags, categories, addNewTag }
