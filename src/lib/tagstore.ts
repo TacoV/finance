@@ -7,7 +7,7 @@ interface Tag {
   category: string
 }
 
-const categories: String[] = ['need', 'want', 'invest']
+const categories: string[] = ['income', 'need', 'want', 'invest']
 
 const tags = ref<Tag[]>([])
 
@@ -22,12 +22,29 @@ async function retrieveTags() {
   }
 }
 
-async function addNewTag(tagname: String, category: string) {
+async function addNewTag(tagname: string, category: string) {
   tags.value.push({
     id: 5555,
     name: tagname,
     category: category
   })
 }
+async function recategorizeTag(tag_id: number, category: string) {
+  const { error } = await supabase.from('tags').update({ category: category }).eq('id', tag_id)
+  if (error) {
+    console.log('Error recategorizing tag', error.message)
+  } else {
+    tags.value.find((el) => el.id === tag_id).category = category
+  }
+}
 
-export { tags, retrieveTags, categories, addNewTag }
+async function renameTag(tag_id: number, tag_name: string) {
+  const { error } = await supabase.from('tags').update({ name: tag_name }).eq('id', tag_id)
+  if (error) {
+    console.log('Error renaming tag', error.message)
+  } else {
+    tags.value.find((el) => el.id === tag_id).name = tag_name
+  }
+}
+
+export { tags, retrieveTags, categories, addNewTag, recategorizeTag, renameTag }

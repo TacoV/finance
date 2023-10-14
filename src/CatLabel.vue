@@ -11,6 +11,9 @@ defineProps({
 </template>
 
 <style scoped>
+.income {
+  background-color: red;
+}
 .need {
   background-color: red;
 }

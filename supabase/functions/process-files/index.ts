@@ -11,7 +11,7 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type'
 }
 
-function parseNumber(unparsed: String): Number {
+function parseNumber(unparsed: string): Number {
   return parseFloat(unparsed.replace(',', '.').replace(' ', ''))
 }
 

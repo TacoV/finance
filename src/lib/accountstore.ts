@@ -15,7 +15,6 @@ async function retrieveAccounts() {
 }
 
 async function renameAccount(account_id: number, account_name: string) {
-  console.log(account_id, account_name)
   const { error } = await supabase
     .from('accounts')
     .update({ account_name: account_name })
