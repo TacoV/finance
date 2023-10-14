@@ -40,7 +40,6 @@ const selectedRowsStats = computed(() => {
   }, stats)
 })
 
-
 const formatCurrency = (value: number) => {
   return value.toLocaleString('nl-NL', { style: 'currency', currency: 'EUR' })
 }
@@ -60,7 +59,7 @@ retrieveTags()
   </div>
 
   <div>
-    Label selection as: 
+    Label selection as:
     <CatLabel v-for="tag in tags" v-bind:key="tag.name" :name="tag.name" :category="tag.category" />
   </div>
 

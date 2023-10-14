@@ -7,6 +7,8 @@ interface Tag {
   category: string
 }
 
+const categories: String[] = ['need', 'want', 'invest']
+
 const tags = ref<Tag[]>([])
 
 async function retrieveTags() {
@@ -20,4 +22,4 @@ async function retrieveTags() {
   }
 }
 
-export { tags, retrieveTags }
+export { tags, retrieveTags, categories }

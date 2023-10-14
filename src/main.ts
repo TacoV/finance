@@ -8,12 +8,12 @@ import App from './App.vue'
 
 import PrimeVue from 'primevue/config'
 
-import Accordion from 'primevue/accordion';
-import AccordionTab from 'primevue/accordiontab';
+import Accordion from 'primevue/accordion'
+import AccordionTab from 'primevue/accordiontab'
 import Button from 'primevue/button'
 import Column from 'primevue/column'
 import DataTable from 'primevue/datatable'
-import Dropdown from 'primevue/dropdown';
+import Dropdown from 'primevue/dropdown'
 import FileUpload from 'primevue/fileupload'
 import InputText from 'primevue/inputtext'
 import Tag from 'primevue/tag'

@@ -1,16 +1,23 @@
 <script setup lang="ts">
-import { tags, retrieveTags } from './lib/tagstore'
+import { tags, retrieveTags, categories } from './lib/tagstore'
+import { ref } from 'vue'
 import CatLabel from './CatLabel.vue'
 retrieveTags()
+
+const newTag = ref<String>()
+const addTag = () => {
+  newTag.value = ''
+}
 </script>
 
 <template>
-  <DataTable v-model:value="tags" key="id">
-    <Column field="name" header="Name"></Column>
-    <Column field="category" header="Category">
-      <template #body="{ data }">
-        <CatLabel :name="data.category" :category="data.category" />
-      </template>
-    </Column>
-  </DataTable>
+  <Dropdown v-model="data.category" :options="categories" v-for="data in tags" key="id">
+    <template #value="slotProps">
+      <CatLabel :name="data.name" :category="data.category" />
+    </template>
+    <template #option="slotProps">
+      <CatLabel :name="slotProps.option" :category="slotProps.option" />
+    </template>
+  </Dropdown>
+  <InputText type="text" v-model="newTag" @keyup.enter="addTag" />
 </template>
