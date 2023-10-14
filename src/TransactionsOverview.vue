@@ -1,10 +1,9 @@
 <script setup lang="ts">
 import { FilterMatchMode } from 'primevue/api'
-import { supabase } from './lib/supabase'
 import { ref, computed } from 'vue'
+import { tags, retrieveTags } from './lib/tagstore'
+import { transactions, retrieveTransactions } from './lib/transstore'
 import CatLabel from './CatLabel.vue'
-
-const transactions = ref()
 
 const filters = ref({
   account_name: { value: null, matchMode: FilterMatchMode.CONTAINS },
@@ -41,19 +40,13 @@ const selectedRowsStats = computed(() => {
   }, stats)
 })
 
-async function retrieveTransactions() {
-  const { data, error } = await supabase.from('transactions_overview').select('*')
-  if (error) {
-    alert('Error retrieving transactions: ' + error.message)
-  }
-  transactions.value = data
-}
 
 const formatCurrency = (value: number) => {
   return value.toLocaleString('nl-NL', { style: 'currency', currency: 'EUR' })
 }
 
 retrieveTransactions()
+retrieveTags()
 </script>
 
 <template>
@@ -64,6 +57,11 @@ retrieveTransactions()
     Received: {{ formatCurrency(selectedRowsStats.received) }}<br />
     Sent: {{ formatCurrency(selectedRowsStats.sent) }}<br />
     Total: {{ formatCurrency(selectedRowsStats.total) }}<br />
+  </div>
+
+  <div>
+    Label selection as: 
+    <CatLabel v-for="tag in tags" v-bind:key="tag.name" :name="tag.name" :category="tag.category" />
   </div>
 
   <DataTable
