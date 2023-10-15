@@ -11,4 +11,18 @@ async function retrieveTransactions() {
   transactions.value = data
 }
 
-export { transactions, retrieveTransactions }
+async function labelTransactions(newinfo: any[]) {
+  const { error } = await supabase.from('transactions_tags').upsert(newinfo)
+  if (error) {
+    alert('Error labeling transactions: ' + error.message)
+  } else {
+    newinfo.forEach((info) => {
+      console.log(info)
+      transactions.value.find(
+        (el: any) => el.transaction_no == info.transaction_no && el.account_id == info.account_id
+      ).tag_name = 'Boodschappen' // info.tag_name
+    })
+  }
+}
+
+export { transactions, retrieveTransactions, labelTransactions }

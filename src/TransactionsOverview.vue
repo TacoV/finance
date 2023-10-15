@@ -2,7 +2,7 @@
 import { FilterMatchMode } from 'primevue/api'
 import { ref, computed } from 'vue'
 import { tags, retrieveTags } from './lib/tagstore'
-import { transactions, retrieveTransactions } from './lib/transstore'
+import { transactions, retrieveTransactions, labelTransactions } from './lib/transstore'
 import CatLabel from './CatLabel.vue'
 
 const filters = ref({
@@ -30,7 +30,7 @@ const selectedRowsStats = computed(() => {
   if (selectedRows.value === undefined) {
     return stats
   }
-  return selectedRows.value.reduce((runningStat: Stats, row) => {
+  return selectedRows.value.reduce((runningStat: Stats, row: any) => {
     return {
       count: runningStat.count + 1,
       received: runningStat.received + (row.amount > 0 ? row.amount : 0),
@@ -42,6 +42,18 @@ const selectedRowsStats = computed(() => {
 
 const formatCurrency = (value: number) => {
   return value.toLocaleString('nl-NL', { style: 'currency', currency: 'EUR' })
+}
+
+const labelSelectionAs = async (tag_id: number) => {
+  const data: Object[] = []
+  for (const row of selectedRows.value) {
+    data.push({
+      transaction_no: row.transaction_no,
+      tag_id: tag_id,
+      account_id: row.account_id
+    })
+  }
+  await labelTransactions(data)
 }
 
 retrieveTransactions()
@@ -60,7 +72,14 @@ retrieveTags()
 
   <div>
     Label selection as:
-    <CatLabel v-for="tag in tags" v-bind:key="tag.name" :name="tag.name" :category="tag.category" />
+    <CatLabel
+      v-for="tag in tags"
+      v-bind:key="tag.name"
+      :name="tag.name"
+      :category="tag.category"
+      class="mr-1"
+      @click="labelSelectionAs(tag.id)"
+    />
   </div>
 
   <DataTable
