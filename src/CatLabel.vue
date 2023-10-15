@@ -12,16 +12,16 @@ defineProps({
 
 <style scoped>
 .income {
-  background-color: red;
+  background-color: green;
 }
 .need {
   background-color: red;
 }
 .want {
-  background-color: darkgreen;
+  background-color: orange;
 }
 .invest {
-  background-color: aqua;
+  background-color: blue;
 }
 .untagged {
   font-style: italic;

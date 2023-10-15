@@ -5,7 +5,8 @@ import {
   categories,
   addNewTag,
   recategorizeTag,
-  renameTag
+  renameTag,
+  deleteTag
 } from './lib/tagstore'
 import { ref } from 'vue'
 import CatLabel from './CatLabel.vue'
@@ -52,6 +53,10 @@ retrieveTags()
         </Dropdown>
       </template>
     </Column>
+    <Column header="Delete">
+      <template #body="slotProps">
+        <Button label="x" @click="deleteTag(slotProps.data.id)" /> </template
+    ></Column>
   </DataTable>
   <InputText type="text" v-model="newTag" @keyup.enter="addTag" />
 </template>

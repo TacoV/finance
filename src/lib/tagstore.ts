@@ -43,6 +43,11 @@ async function recategorizeTag(tag_id: number, category: string) {
   }
 }
 
+async function deleteTag(tag_id: number) {
+  await supabase.from('tags').delete().eq('id', tag_id)
+  tags.value = tags.value.filter((el) => el.id !== tag_id)
+}
+
 async function renameTag(tag_id: number, tag_name: string) {
   const { error } = await supabase.from('tags').update({ name: tag_name }).eq('id', tag_id)
   if (error) {
@@ -53,4 +58,4 @@ async function renameTag(tag_id: number, tag_name: string) {
   }
 }
 
-export { tags, retrieveTags, categories, addNewTag, recategorizeTag, renameTag }
+export { tags, retrieveTags, categories, addNewTag, recategorizeTag, renameTag, deleteTag }
