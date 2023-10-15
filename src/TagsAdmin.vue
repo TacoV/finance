@@ -11,14 +11,15 @@ import { ref } from 'vue'
 import CatLabel from './CatLabel.vue'
 import type { DataTableCellEditCompleteEvent } from 'primevue/datatable'
 
-const newTag = ref<string>()
+const newTag = ref<string>('')
 const addTag = async () => {
-  const tagname = newTag.value
+  if (newTag.value !== '') {
+    await addNewTag(newTag.value, 'need')
+  }
   newTag.value = ''
-  await addNewTag(tagname, 'need')
 }
-const changeCategory = async (data: Tag) => {
-  await recategorizeTag(data.id, newValue)
+const changeCategory = async (data: any) => {
+  await recategorizeTag(data.id, data.category)
 }
 const onCellEditComplete = async (event: DataTableCellEditCompleteEvent) => {
   const { data, newValue } = event
@@ -30,11 +31,6 @@ retrieveTags()
 
 <template>
   <DataTable :value="tags" dataKey="id" editMode="cell" @cell-edit-complete="onCellEditComplete">
-    <Column header="#">
-      <template #body="slotProps">
-        {{ slotProps.data.id }}
-      </template>
-    </Column>
     <Column field="name" header="#">
       <template #editor="{ data }">
         <InputText v-model="data.name" autofocus />

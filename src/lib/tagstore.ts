@@ -18,23 +18,28 @@ async function retrieveTags() {
   }
 
   if (data) {
-    tags.value = data as Tag[]
+    tags.value = []
+    for (const row of data) tags.value.push(row as Tag)
   }
 }
 
 async function addNewTag(tagname: string, category: string) {
-  tags.value.push({
-    id: 5555,
-    name: tagname,
-    category: category
-  })
+  await supabase.from('tags').insert({ name: tagname, category: category })
+  const { error, data } = await supabase.from('tags').select('*').eq('name', tagname)
+  if (error) {
+    console.log('Error retrieving tag_id', error.message)
+  } else {
+    tags.value.push(data[0] as Tag)
+  }
 }
+
 async function recategorizeTag(tag_id: number, category: string) {
   const { error } = await supabase.from('tags').update({ category: category }).eq('id', tag_id)
   if (error) {
     console.log('Error recategorizing tag', error.message)
   } else {
-    tags.value.find((el) => el.id === tag_id).category = category
+    const tag = tags.value.find((el) => el.id === tag_id)
+    if (tag) tag.category = category
   }
 }
 
@@ -43,7 +48,8 @@ async function renameTag(tag_id: number, tag_name: string) {
   if (error) {
     console.log('Error renaming tag', error.message)
   } else {
-    tags.value.find((el) => el.id === tag_id).name = tag_name
+    const tag = tags.value.find((el) => el.id === tag_id)
+    if (tag) tag.name = tag_name
   }
 }
 
