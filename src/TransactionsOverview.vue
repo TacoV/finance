@@ -10,7 +10,7 @@ const filters = ref({
   counter_name: { value: null, matchMode: FilterMatchMode.CONTAINS },
   bookdate: { value: null, matchMode: FilterMatchMode.CONTAINS },
   amount: { value: null, matchMode: FilterMatchMode.CONTAINS },
-  tag_name: { value: null, matchMode: FilterMatchMode.CONTAINS }
+  tag_name: { value: null, matchMode: FilterMatchMode.IN }
 })
 const selectedRows = ref()
 
@@ -82,7 +82,7 @@ retrieveTags()
       :name="tag.name"
       :category="tag.category"
       class="mr-1"
-      @click="labelSelectionAs(tag.id, tag.name)"
+      @click="labelSelectionAs(tag.id)"
     />
   </div>
 
@@ -134,11 +134,20 @@ retrieveTags()
       </template>
     </Column>
     <Column field="tag_name" header="Tag">
+      <template #filter="{ filterModel, filterCallback }">
+        <Dropdown
+          v-model="filterModel.value"
+          @change="filterCallback()"
+          :options="tags"
+          placeholder="Tag(s)"
+        >
+          <template #option="slotProps">
+            <CatLabel :name="slotProps.option.name" :category="slotProps.option.category" />
+          </template>
+        </Dropdown>
+      </template>
       <template #body="{ data }">
         <CatLabel :name="data.tag_name" :category="data.tag_category" />
-      </template>
-      <template #filter="{ filterModel, filterCallback }">
-        <InputText v-model="filterModel.value" @input="filterCallback()" />
       </template>
     </Column>
   </DataTable>
