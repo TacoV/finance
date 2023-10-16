@@ -53,7 +53,11 @@ const labelSelectionAs = async (tag_id: number) => {
       account_id: row.account_id
     })
   }
-  await labelTransactions(data)
+  const theTag = tags.value.find((el) => el.id == tag_id)
+  if (theTag === undefined) {
+    throw 'Tag nog found'
+  }
+  await labelTransactions(data, theTag)
 }
 
 retrieveTransactions()
@@ -78,7 +82,7 @@ retrieveTags()
       :name="tag.name"
       :category="tag.category"
       class="mr-1"
-      @click="labelSelectionAs(tag.id)"
+      @click="labelSelectionAs(tag.id, tag.name)"
     />
   </div>
 

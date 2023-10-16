@@ -58,4 +58,4 @@ async function renameTag(tag_id: number, tag_name: string) {
   }
 }
 
-export { tags, retrieveTags, categories, addNewTag, recategorizeTag, renameTag, deleteTag }
+export { tags, retrieveTags, categories, addNewTag, recategorizeTag, renameTag, deleteTag, Tag }
