@@ -2,6 +2,7 @@
 import { FilterMatchMode } from 'primevue/api'
 import { ref, computed } from 'vue'
 import { tags, retrieveTags } from './lib/tagstore'
+import type Tag from './lib/tagstore'
 import { transactions, retrieveTransactions, labelTransactions } from './lib/transstore'
 import CatLabel from './CatLabel.vue'
 
@@ -10,7 +11,7 @@ const filters = ref({
   counter_name: { value: null, matchMode: FilterMatchMode.CONTAINS },
   bookdate: { value: null, matchMode: FilterMatchMode.CONTAINS },
   amount: { value: null, matchMode: FilterMatchMode.CONTAINS },
-  tag_name: { value: null, matchMode: FilterMatchMode.IN }
+  tag_name: { value: null, matchMode: FilterMatchMode.EQUALS }
 })
 const selectedRows = ref()
 
@@ -20,6 +21,15 @@ interface Stats {
   sent: number
   total: number
 }
+const tag_names = computed<string[]>((): string[] => {
+  const names = tags.value.map((tag) => tag.name)
+  names.unshift(null)
+  return names
+})
+const tagFromName: Tag = (tagname: string) => {
+  return tags.value.find((tag) => tag.name == tagname) ?? { id: null, name: null, category: null }
+}
+
 const selectedRowsStats = computed(() => {
   const stats: Stats = {
     count: 0,
@@ -138,11 +148,21 @@ retrieveTags()
         <Dropdown
           v-model="filterModel.value"
           @change="filterCallback()"
-          :options="tags"
+          :options="tag_names"
           placeholder="Tag(s)"
         >
           <template #option="slotProps">
-            <CatLabel :name="slotProps.option.name" :category="slotProps.option.category" />
+            <CatLabel
+              :name="tagFromName(slotProps.option).name"
+              :category="tagFromName(slotProps.option).category"
+            />
+          </template>
+          <template #value="slotProps">
+            <CatLabel
+              :name="tagFromName(slotProps.value).name"
+              :category="tagFromName(slotProps.value).category"
+              v-if="slotProps.value"
+            />
           </template>
         </Dropdown>
       </template>
