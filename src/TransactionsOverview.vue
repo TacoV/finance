@@ -103,7 +103,7 @@ retrieveTags()
     v-model:selection="selectedRows"
     dataKey="id"
     class="p-datatable-sm"
-    filterDisplay="row"
+    filterDisplay="menu"
     paginator
     :rows="50"
     tableStyle="min-width: 70rem"
@@ -143,7 +143,7 @@ retrieveTags()
         <InputText v-model="filterModel.value" @input="filterCallback()" />
       </template>
     </Column>
-    <Column field="tag_name" header="Tag">
+    <Column field="tag_name" header="Tag" :showFilterMatchModes="false">
       <template #filter="{ filterModel, filterCallback }">
         <MultiSelect
           v-model="filterModel.value"
@@ -163,7 +163,9 @@ retrieveTags()
               :category="tagFromName(slotProps.value).category"
               v-if="slotProps.value && slotProps.value.length == 1"
             />
-            <span v-if="slotProps.value && slotProps.value.length > 1">{{ slotProps.value.length }} tags</span>
+            <span v-if="slotProps.value && slotProps.value.length > 1"
+              >{{ slotProps.value.length }} tags</span
+            >
           </template>
         </MultiSelect>
       </template>
