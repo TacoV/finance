@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { FilterMatchMode } from 'primevue/api'
+import { FilterOperator, FilterMatchMode } from 'primevue/api'
 import { ref, computed } from 'vue'
 import { tags, retrieveTags } from './lib/tagstore'
 import type Tag from './lib/tagstore'
@@ -10,7 +10,10 @@ const filters = ref({
   account_name: { value: null, matchMode: FilterMatchMode.CONTAINS },
   counter_name: { value: null, matchMode: FilterMatchMode.CONTAINS },
   bookdate: { value: null, matchMode: FilterMatchMode.CONTAINS },
-  amount: { value: null, matchMode: FilterMatchMode.CONTAINS },
+  amount: {
+    operator: FilterOperator.AND,
+    constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }]
+  },
   tag_name: { value: null, matchMode: FilterMatchMode.IN }
 })
 const selectedRows = ref()
@@ -27,7 +30,13 @@ const tag_names = computed<string[]>((): string[] => {
   return names
 })
 const tagFromName: Tag = (tagname: string) => {
-  return tags.value.find((tag) => tag.name == tagname) ?? { id: null, name: null, category: null }
+  return (
+    tags.value.find((tag) => tag.name == tagname) ?? {
+      id: null,
+      name: 'Untagged',
+      category: 'untagged'
+    }
+  )
 }
 
 const selectedRowsStats = computed(() => {
@@ -133,7 +142,7 @@ retrieveTags()
         <InputText v-model="filterModel.value" @input="filterCallback()" />
       </template>
     </Column>
-    <Column field="amount" header="Bedrag">
+    <Column field="amount" dataType="numeric" header="Bedrag">
       <template #body="{ data }">
         <span :class="data.amount > 0 ? 'credit' : 'debit'">
           {{ formatCurrency(data.amount) }}

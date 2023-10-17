@@ -11,6 +11,7 @@ async function retrieveTransactions() {
   }
   data?.map((el) => {
     el.tag_name = el.tag_name ?? 'Untagged'
+    el.tag_category = el.tag_category ?? 'untagged'
     return el
   })
   transactions.value = data
