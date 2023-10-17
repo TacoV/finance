@@ -11,7 +11,7 @@ const filters = ref({
   counter_name: { value: null, matchMode: FilterMatchMode.CONTAINS },
   bookdate: { value: null, matchMode: FilterMatchMode.CONTAINS },
   amount: { value: null, matchMode: FilterMatchMode.CONTAINS },
-  tag_name: { value: null, matchMode: FilterMatchMode.EQUALS }
+  tag_name: { value: null, matchMode: FilterMatchMode.IN }
 })
 const selectedRows = ref()
 
@@ -23,7 +23,7 @@ interface Stats {
 }
 const tag_names = computed<string[]>((): string[] => {
   const names = tags.value.map((tag) => tag.name)
-  names.unshift(null)
+  names.unshift('Untagged')
   return names
 })
 const tagFromName: Tag = (tagname: string) => {
@@ -145,7 +145,7 @@ retrieveTags()
     </Column>
     <Column field="tag_name" header="Tag">
       <template #filter="{ filterModel, filterCallback }">
-        <Dropdown
+        <MultiSelect
           v-model="filterModel.value"
           @change="filterCallback()"
           :options="tag_names"
@@ -161,10 +161,11 @@ retrieveTags()
             <CatLabel
               :name="tagFromName(slotProps.value).name"
               :category="tagFromName(slotProps.value).category"
-              v-if="slotProps.value"
+              v-if="slotProps.value && slotProps.value.length == 1"
             />
+            <span v-if="slotProps.value && slotProps.value.length > 1">{{ slotProps.value.length }} tags</span>
           </template>
-        </Dropdown>
+        </MultiSelect>
       </template>
       <template #body="{ data }">
         <CatLabel :name="data.tag_name" :category="data.tag_category" />

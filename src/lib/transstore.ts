@@ -9,6 +9,7 @@ async function retrieveTransactions() {
   if (error) {
     alert('Error retrieving transactions: ' + error.message)
   }
+  data?.map(el => { el.tag_name = el.tag_name ?? 'Untagged'; return el })
   transactions.value = data
 }
 

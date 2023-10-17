@@ -16,6 +16,7 @@ import DataTable from 'primevue/datatable'
 import Dropdown from 'primevue/dropdown'
 import FileUpload from 'primevue/fileupload'
 import InputText from 'primevue/inputtext'
+import MultiSelect from 'primevue/multiselect'
 import Tag from 'primevue/tag'
 
 const app = createApp(App)
@@ -28,5 +29,6 @@ app.component('DataTable', DataTable)
 app.component('Dropdown', Dropdown)
 app.component('FileUpload', FileUpload)
 app.component('InputText', InputText)
+app.component('MultiSelect', MultiSelect)
 app.component('Tag', Tag)
 app.mount('#app')
