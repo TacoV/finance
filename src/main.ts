@@ -17,6 +17,7 @@ import Dropdown from 'primevue/dropdown'
 import FileUpload from 'primevue/fileupload'
 import InputText from 'primevue/inputtext'
 import MultiSelect from 'primevue/multiselect'
+import SpeedDial from 'primevue/speeddial'
 import Tag from 'primevue/tag'
 
 const app = createApp(App)
@@ -31,4 +32,5 @@ app.component('FileUpload', FileUpload)
 app.component('InputText', InputText)
 app.component('MultiSelect', MultiSelect)
 app.component('Tag', Tag)
+app.component('SpeedDial', SpeedDial)
 app.mount('#app')

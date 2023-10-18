@@ -46,9 +46,9 @@ const selectedRowsStats = computed(() => {
     total: 0,
     perStat: []
   }
-  tag_names.value.forEach(
-    el => { stats.perStat.push({ tag: tagFromName(el), sent: 0, received: 0 })  }
-  )
+  tag_names.value.forEach((el) => {
+    stats.perStat.push({ tag: tagFromName(el), sent: 0, received: 0 })
+  })
   if (selectedRows.value === undefined) {
     return stats
   }
@@ -90,7 +90,7 @@ const labelSelectionAs = async (tag_id: number) => {
   await labelTransactions(data, theTag)
 }
 
-const setTagFilter = (tag:Tag) => {
+const setTagFilter = (tag: Tag) => {
   console.log(filters.value.tag_name)
   filters.value.tag_name = { value: [tag.name], matchMode: FilterMatchMode.IN }
   console.log(filters.value.tag_name)
@@ -113,24 +113,29 @@ retrieveTags()
     Sent: {{ formatCurrency(selectedRowsStats.sent) }}<br />
     Total: {{ formatCurrency(selectedRowsStats.total) }}<br />
     <span v-for="tagStat in selectedRowsStats.perStat">
-      <CatLabel :name="tagStat.tag.name" :category="tagStat.tag.category" @click="setTagFilter(tagStat.tag)"/>
-      Received: {{ formatCurrency(tagStat.received) }}
-      Sent: {{ formatCurrency(tagStat.sent) }}
-      Total: {{ formatCurrency(tagStat.sent + tagStat.received) }}
+      <CatLabel
+        :name="tagStat.tag.name"
+        :category="tagStat.tag.category"
+        @click="setTagFilter(tagStat.tag)"
+      />
+      Received: {{ formatCurrency(tagStat.received) }} Sent:
+      {{ formatCurrency(tagStat.sent) }} Total:
+      {{ formatCurrency(tagStat.sent + tagStat.received) }}
       <br />
     </span>
   </div>
 
   <div>
-    Label selection as:
-    <CatLabel
-      v-for="tag in tags"
-      v-bind:key="tag.name"
-      :name="tag.name"
-      :category="tag.category"
-      class="mr-1"
-      @click="labelSelectionAs(tag.id)"
-    />
+    <SpeedDial :model="tags" type="linear" direction="right" style="position: relative; justify-content: left;">
+      <template #item="{ item }">
+        <CatLabel
+          :name="item.name"
+          :category="item.category"
+          class="mr-2"
+          @click="labelSelectionAs(item.id)"
+        />
+      </template>
+    </SpeedDial>
   </div>
 
   <DataTable
