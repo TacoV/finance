@@ -74,7 +74,7 @@ const formatCurrency = (value: number) => {
   return value.toLocaleString('nl-NL', { style: 'currency', currency: 'EUR' })
 }
 
-const labelSelectionAs = async (tag_id: number) => {
+const labelSelectionAs = async (tag_id: number, closeSpeedDial) => {
   const data: Object[] = []
   for (const row of selectedRows.value) {
     data.push({
@@ -88,6 +88,7 @@ const labelSelectionAs = async (tag_id: number) => {
     throw 'Tag nog found'
   }
   await labelTransactions(data, theTag)
+  closeSpeedDial()
 }
 
 const setTagFilter = (tag: Tag) => {
@@ -126,13 +127,18 @@ retrieveTags()
   </div>
 
   <div>
-    <SpeedDial :model="tags" type="linear" direction="right" style="position: relative; justify-content: left;">
+    <SpeedDial
+      :model="tags"
+      type="linear"
+      direction="right"
+      style="position: relative; justify-content: left"
+    >
       <template #item="{ item, onClick }">
         <CatLabel
           :name="item.name"
           :category="item.category"
           class="mr-2"
-          @click="labelSelectionAs(item.id); onClick()"
+          @click="labelSelectionAs(item.id, onClick)"
         />
       </template>
     </SpeedDial>
