@@ -127,12 +127,12 @@ retrieveTags()
 
   <div>
     <SpeedDial :model="tags" type="linear" direction="right" style="position: relative; justify-content: left;">
-      <template #item="{ item }">
+      <template #item="{ item, onClick }">
         <CatLabel
           :name="item.name"
           :category="item.category"
           class="mr-2"
-          @click="labelSelectionAs(item.id)"
+          @click="labelSelectionAs(item.id); onClick()"
         />
       </template>
     </SpeedDial>
