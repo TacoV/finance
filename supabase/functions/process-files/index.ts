@@ -5,27 +5,34 @@
 import { serve } from 'https://deno.land/std@0.177.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { parse } from 'https://esm.sh/csv-parse/sync'
+import { Database } from '../../../shared/generated-types.ts'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type'
 }
 
-function parseNumber(unparsed: string): Number {
+function parseNumber(unparsed: string): number {
   return parseFloat(unparsed.replace(',', '.').replace(' ', ''))
 }
 
-const knownAccounts = []
-async function getAccountIdFromAccountNo(supabase, account_no: string): Promise<number> {
+const knownAccounts: Database['public']['Tables']['accounts']['Row'][] = []
+async function getAccount(
+  supabase,
+  account_no: string
+): Promise<Database['public']['Tables']['accounts']['Row']> {
   if (knownAccounts[account_no]) {
     return knownAccounts[account_no]
   }
-  await supabase.from('accounts').insert({ account_no: account_no, account_name: account_no })
-  const { error, data } = await supabase.from('accounts').select('id').eq('account_no', account_no)
+  await supabase.from('accounts').insert({
+    account_no: account_no,
+    account_name: account_no
+  } as Database['public']['Tables']['accounts']['Insert'])
+  const { error, data } = await supabase.from('accounts').select().eq('account_no', account_no)
   if (error) {
-    console.log('Error retrieving account_id', error.message)
+    console.log('Error loading account', error.message)
   }
-  knownAccounts[account_no] = data[0]?.id
+  knownAccounts[account_no] = data[0]
   return knownAccounts[account_no]
 }
 
@@ -57,12 +64,13 @@ async function processFilesForAuthenticatedUser(supabase) {
     })
 
     // Loop through each CSV row
-    const rows = [] as Object[]
+    const rows = [] as Database['public']['Tables']['transactions']['Insert'][]
     for (const record of info) {
+      const account = await getAccount(supabase, record['IBAN/BBAN'])
       rows.push({
-        account_id: await getAccountIdFromAccountNo(supabase, record['IBAN/BBAN']),
+        owner: user.id,
+        account_id: account.id,
         transaction_no: record['Volgnr'],
-        owner: user?.id,
         counter_account: record['Tegenrekening IBAN/BBAN'],
         counter_name: record['Naam tegenpartij'],
         amount: parseNumber(record['Bedrag']),
@@ -91,7 +99,7 @@ serve(async (req: Request) => {
   }
 
   try {
-    const supabaseClient = createClient(
+    const supabaseClient = createClient<Database>(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_ANON_KEY') ?? '',
       { global: { headers: { Authorization: req.headers.get('Authorization')! } } }
