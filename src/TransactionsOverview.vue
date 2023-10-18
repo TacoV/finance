@@ -1,21 +1,26 @@
 <script setup lang="ts">
 import { FilterOperator, FilterMatchMode } from 'primevue/api'
 import { ref, computed } from 'vue'
-import { tags, retrieveTags } from './lib/tagstore'
-import type Tag from './lib/tagstore'
+import { tags, retrieveTags, untaggedTag, type Tag } from './lib/tagstore'
 import { transactions, retrieveTransactions, labelTransactions } from './lib/transstore'
 import CatLabel from './CatLabel.vue'
 
-const filters = ref({
-  account_name: { value: null, matchMode: FilterMatchMode.CONTAINS },
-  counter_name: { value: null, matchMode: FilterMatchMode.CONTAINS },
-  bookdate: { value: null, matchMode: FilterMatchMode.CONTAINS },
-  amount: {
-    operator: FilterOperator.AND,
-    constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }]
-  },
-  tag_name: { value: null, matchMode: FilterMatchMode.IN }
-})
+const filters = ref()
+const initFilters = () => {
+  filters.value = {
+    account_name: { value: null, matchMode: FilterMatchMode.CONTAINS },
+    counter_name: { value: null, matchMode: FilterMatchMode.CONTAINS },
+    bookdate: { value: null, matchMode: FilterMatchMode.CONTAINS },
+    amount: {
+      operator: FilterOperator.AND,
+      constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }]
+    },
+    tag_name: { value: null, matchMode: FilterMatchMode.IN }
+  }
+}
+
+initFilters()
+
 const selectedRows = ref()
 
 interface Stats {
@@ -23,20 +28,14 @@ interface Stats {
   received: number
   sent: number
   total: number
+  perStat: any
 }
 const tag_names = computed<string[]>((): string[] => {
   const names = tags.value.map((tag) => tag.name)
-  names.unshift('Untagged')
-  return names
+  return ['Untagged', ...names]
 })
-const tagFromName: Tag = (tagname: string) => {
-  return (
-    tags.value.find((tag) => tag.name == tagname) ?? {
-      id: null,
-      name: 'Untagged',
-      category: 'untagged'
-    }
-  )
+const tagFromName = (tagname: string): Tag => {
+  return tags.value.find((tag) => tag.name == tagname) ?? untaggedTag
 }
 
 const selectedRowsStats = computed(() => {
@@ -44,17 +43,29 @@ const selectedRowsStats = computed(() => {
     count: 0,
     received: 0,
     sent: 0,
-    total: 0
+    total: 0,
+    perStat: []
   }
+  tag_names.value.forEach(
+    el => { stats.perStat.push({ tag: tagFromName(el), sent: 0, received: 0 })  }
+  )
   if (selectedRows.value === undefined) {
     return stats
   }
   return selectedRows.value.reduce((runningStat: Stats, row: any) => {
+    const perStat = runningStat.perStat
+    console.log(row)
+    const tagStat = perStat.find((el) => el.tag.name == row.tag_name)
+    if (tagStat) {
+      tagStat.received = tagStat.received + (row.amount > 0 ? row.amount : 0)
+      tagStat.sent = tagStat.sent + (row.amount < 0 ? row.amount : 0)
+    }
     return {
       count: runningStat.count + 1,
       received: runningStat.received + (row.amount > 0 ? row.amount : 0),
       sent: runningStat.sent + (row.amount < 0 ? row.amount : 0),
-      total: runningStat.total + row.amount
+      total: runningStat.total + row.amount,
+      perStat: perStat
     }
   }, stats)
 })
@@ -79,6 +90,16 @@ const labelSelectionAs = async (tag_id: number) => {
   await labelTransactions(data, theTag)
 }
 
+const setTagFilter = (tag:Tag) => {
+  console.log(filters.value.tag_name)
+  filters.value.tag_name = { value: [tag.name], matchMode: FilterMatchMode.IN }
+  console.log(filters.value.tag_name)
+}
+
+const clearFilter = () => {
+  initFilters()
+}
+
 retrieveTransactions()
 retrieveTags()
 </script>
@@ -91,6 +112,13 @@ retrieveTags()
     Received: {{ formatCurrency(selectedRowsStats.received) }}<br />
     Sent: {{ formatCurrency(selectedRowsStats.sent) }}<br />
     Total: {{ formatCurrency(selectedRowsStats.total) }}<br />
+    <span v-for="tagStat in selectedRowsStats.perStat">
+      <CatLabel :name="tagStat.tag.name" :category="tagStat.tag.category" @click="setTagFilter(tagStat.tag)"/>
+      Received: {{ formatCurrency(tagStat.received) }}
+      Sent: {{ formatCurrency(tagStat.sent) }}
+      Total: {{ formatCurrency(tagStat.sent + tagStat.received) }}
+      <br />
+    </span>
   </div>
 
   <div>
@@ -117,6 +145,17 @@ retrieveTags()
     :rows="50"
     tableStyle="min-width: 70rem"
   >
+    <template #header>
+      <div class="flex justify-content-between">
+        <Button
+          type="button"
+          icon="pi pi-filter-slash"
+          label="Clear"
+          outlined
+          @click="clearFilter()"
+        />
+      </div>
+    </template>
     <Column selectionMode="multiple" headerStyle="width: 3rem"></Column>
     <Column field="account_name" header="Rekening">
       <template #body="{ data }">
