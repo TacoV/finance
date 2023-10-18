@@ -1,15 +1,16 @@
 import { ref } from 'vue'
-import { supabase } from '@/lib/supabase'
-
-interface Tag {
-  id: number
-  name: string
-  category: string
-}
+import { supabase, type Tag } from '@/lib/supabase'
 
 const categories: string[] = ['income', 'need', 'want', 'invest']
 
 const tags = ref<Tag[]>([])
+
+const untaggedTag: Tag = {
+  id: 0,
+  owner_id: '',
+  name: 'Untagged',
+  category: 'untagged'
+}
 
 async function retrieveTags() {
   const { error, data } = await supabase.from('tags').select().order('name')
@@ -58,4 +59,14 @@ async function renameTag(tag_id: number, tag_name: string) {
   }
 }
 
-export { tags, retrieveTags, categories, addNewTag, recategorizeTag, renameTag, deleteTag, Tag }
+export {
+  tags,
+  retrieveTags,
+  categories,
+  addNewTag,
+  recategorizeTag,
+  renameTag,
+  deleteTag,
+  type Tag,
+  untaggedTag
+}
