@@ -74,7 +74,7 @@ const formatCurrency = (value: number) => {
   return value.toLocaleString('nl-NL', { style: 'currency', currency: 'EUR' })
 }
 
-const labelSelectionAs = async (tag_id: number, closeSpeedDial) => {
+const labelSelectionAs = async (tag_id: number) => {
   const data: Object[] = []
   for (const row of selectedRows.value) {
     data.push({
@@ -88,7 +88,6 @@ const labelSelectionAs = async (tag_id: number, closeSpeedDial) => {
     throw 'Tag nog found'
   }
   await labelTransactions(data, theTag)
-  closeSpeedDial()
 }
 
 const setTagFilter = (tag: Tag) => {
@@ -110,38 +109,23 @@ retrieveTags()
 
   <div>
     Transactions: {{ selectedRowsStats.count }}<br />
-    Received: {{ formatCurrency(selectedRowsStats.received) }}<br />
-    Sent: {{ formatCurrency(selectedRowsStats.sent) }}<br />
-    Total: {{ formatCurrency(selectedRowsStats.total) }}<br />
-    <span v-for="tagStat in selectedRowsStats.perStat">
-      <CatLabel
-        :name="tagStat.tag.name"
-        :category="tagStat.tag.category"
-        @click="setTagFilter(tagStat.tag)"
-      />
-      Received: {{ formatCurrency(tagStat.received) }} Sent:
-      {{ formatCurrency(tagStat.sent) }} Total:
-      {{ formatCurrency(tagStat.sent + tagStat.received) }}
-      <br />
-    </span>
-  </div>
-
-  <div>
-    <SpeedDial
-      :model="tags"
-      type="linear"
-      direction="right"
-      style="position: relative; justify-content: left"
-    >
-      <template #item="{ item, onClick }">
+    <tr v-for="tagStat in selectedRowsStats.perStat">
+      <td>
+        <span class="credit">
+          {{ formatCurrency(tagStat.received) }}
+        </span>
+      </td>
+      <td>
         <CatLabel
-          :name="item.name"
-          :category="item.category"
-          class="mr-2"
-          @click="labelSelectionAs(item.id, onClick)"
+          :name="tagStat.tag.name"
+          :category="tagStat.tag.category"
+          @click="setTagFilter(tagStat.tag)"
         />
-      </template>
-    </SpeedDial>
+      </td>
+      <td>
+        <span class="debit">{{ formatCurrency(tagStat.sent) }}</span>
+      </td>
+    </tr>
   </div>
 
   <DataTable
@@ -157,7 +141,7 @@ retrieveTags()
     tableStyle="min-width: 70rem"
   >
     <template #header>
-      <div class="flex justify-content-between">
+      <div class="flex justify-content-between align-items-end">
         <Button
           type="button"
           icon="pi pi-filter-slash"
@@ -165,6 +149,17 @@ retrieveTags()
           outlined
           @click="clearFilter()"
         />
+        <span>
+          Label as:
+          <CatLabel
+            v-for="tag in tags"
+            v-bind:key="tag.id"
+            :name="tag.name"
+            :category="tag.category"
+            class="ml-2"
+            @click="labelSelectionAs(tag.id)"
+          />
+        </span>
       </div>
     </template>
     <Column selectionMode="multiple" headerStyle="width: 3rem"></Column>

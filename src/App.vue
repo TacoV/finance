@@ -8,7 +8,7 @@ import TransactionsOverview from './TransactionsOverview.vue'
 </script>
 
 <template>
-  <Accordion :activeIndex="4" style="width: 1280px">
+  <Accordion :activeIndex="userSession === null ? 0 : 4" style="width: 1280px">
     <AccordionTab header="1 - Log in">
       <AuthHandler />
     </AccordionTab>
