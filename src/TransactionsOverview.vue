@@ -38,6 +38,34 @@ const tagFromName = (tagname: string): Tag => {
   return tags.value.find((tag) => tag.name == tagname) ?? untaggedTag
 }
 
+// Show:
+// How many transactions
+// How much in, out
+// (How much external, internal)
+// How much per tag
+// Split per month
+// Split per account
+
+const aggregatedPerMonth = computed(() => {
+  // FOr each month:
+  // what come in / went out / shifted internally
+  // with what tag
+  // in which account
+  return [
+    {
+      year: 2023,
+      month: 10,
+      in: [
+        {
+          tag: { id: 1, name: 'Boodschappen', category: 'need' },
+          amount: 123,
+          account: { id: 2, name: 'Betaal Taco' }
+        }
+      ]
+    }
+  ]
+})
+
 const selectedRowsStats = computed(() => {
   const stats: Stats = {
     count: 0,
@@ -54,8 +82,7 @@ const selectedRowsStats = computed(() => {
   }
   return selectedRows.value.reduce((runningStat: Stats, row: any) => {
     const perStat = runningStat.perStat
-    console.log(row)
-    const tagStat = perStat.find((el) => el.tag.name == row.tag_name)
+    const tagStat = perStat.find((el: any) => el.tag.name == row.tag_name)
     if (tagStat) {
       tagStat.received = tagStat.received + (row.amount > 0 ? row.amount : 0)
       tagStat.sent = tagStat.sent + (row.amount < 0 ? row.amount : 0)
@@ -91,9 +118,7 @@ const labelSelectionAs = async (tag_id: number) => {
 }
 
 const setTagFilter = (tag: Tag) => {
-  console.log(filters.value.tag_name)
   filters.value.tag_name = { value: [tag.name], matchMode: FilterMatchMode.IN }
-  console.log(filters.value.tag_name)
 }
 
 const clearFilter = () => {
@@ -109,23 +134,25 @@ retrieveTags()
 
   <div>
     Transactions: {{ selectedRowsStats.count }}<br />
-    <tr v-for="tagStat in selectedRowsStats.perStat">
-      <td>
-        <span class="credit">
-          {{ formatCurrency(tagStat.received) }}
-        </span>
-      </td>
-      <td>
-        <CatLabel
-          :name="tagStat.tag.name"
-          :category="tagStat.tag.category"
-          @click="setTagFilter(tagStat.tag)"
-        />
-      </td>
-      <td>
-        <span class="debit">{{ formatCurrency(tagStat.sent) }}</span>
-      </td>
-    </tr>
+    <template v-for="tagStat in selectedRowsStats.perStat">
+      <tr v-if="tagStat.received != 0 || tagStat.sent != 0">
+        <td>
+          <span class="credit">
+            {{ formatCurrency(tagStat.received) }}
+          </span>
+        </td>
+        <td>
+          <CatLabel
+            :name="tagStat.tag.name"
+            :category="tagStat.tag.category"
+            @click="setTagFilter(tagStat.tag)"
+          />
+        </td>
+        <td>
+          <span class="debit">{{ formatCurrency(tagStat.sent) }}</span>
+        </td>
+      </tr>
+    </template>
   </div>
 
   <DataTable
