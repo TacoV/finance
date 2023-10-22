@@ -4,6 +4,7 @@ import { ref, computed } from 'vue'
 import { tags, retrieveTags, untaggedTag, type Tag } from './lib/tagstore'
 import { transactions, retrieveTransactions, labelTransactions } from './lib/transstore'
 import CatLabel from './CatLabel.vue'
+import { accounts } from './lib/accountstore'
 
 const filters = ref()
 const initFilters = () => {
@@ -45,6 +46,36 @@ const tagFromName = (tagname: string): Tag => {
 // How much per tag
 // Split per month
 // Split per account
+
+const amount = () => 100 * Math.floor(Math.random() * 1000)
+
+const transactionsPerMonth = computed(() => {
+  const transactions: any[] = []
+  const years = [2022, 2023]
+  const months = Array.from(new Array(12), (x, i) => i + 1)
+  years.forEach((year) => {
+    months.forEach((month) => {
+      transactions.push({ year: year, month: month, in: amount(), out: amount() })
+    })
+  })
+  return transactions
+})
+
+const transactionsPerAccount = computed(() => {
+  const transactions: any[] = []
+  accounts.value.forEach((account) => {
+    transactions.push({ account: account, in: amount(), out: amount() })
+  })
+  return transactions
+})
+
+const transactionsPerTag = computed(() => {
+  const transactions: any[] = [{ tag: untaggedTag, in: amount(), out: amount() }]
+  tags.value.forEach((tag) => {
+    transactions.push({ tag: tag, in: amount(), out: amount() })
+  })
+  return transactions
+})
 
 const aggregatedPerMonth = computed(() => {
   // FOr each month:
@@ -117,8 +148,22 @@ const labelSelectionAs = async (tag_id: number) => {
   await labelTransactions(data, theTag)
 }
 
+const setAccountFilter = (account) => {
+  filters.value.account_name.value = account.name
+}
+
 const setTagFilter = (tag: Tag) => {
-  filters.value.tag_name = { value: [tag.name], matchMode: FilterMatchMode.IN }
+  filters.value.tag_name.value = [tag.name]
+}
+
+const setAmountFilter = (min: number, max: number) => {
+  filters.value.amount = {
+    operator: FilterOperator.AND,
+    constraints: [
+      { value: min, matchMode: FilterMatchMode.GREATER_THAN_OR_EQUAL_TO },
+      { value: max, matchMode: FilterMatchMode.LESS_THAN_OR_EQUAL_TO }
+    ]
+  }
 }
 
 const clearFilter = () => {
@@ -134,25 +179,32 @@ retrieveTags()
 
   <div>
     Transactions: {{ selectedRowsStats.count }}<br />
-    <template v-for="tagStat in selectedRowsStats.perStat">
-      <tr v-if="tagStat.received != 0 || tagStat.sent != 0">
-        <td>
-          <span class="credit">
-            {{ formatCurrency(tagStat.received) }}
-          </span>
-        </td>
-        <td>
-          <CatLabel
-            :name="tagStat.tag.name"
-            :category="tagStat.tag.category"
-            @click="setTagFilter(tagStat.tag)"
-          />
-        </td>
-        <td>
-          <span class="debit">{{ formatCurrency(tagStat.sent) }}</span>
-        </td>
-      </tr>
-    </template>
+    <tr v-for="info in transactionsPerAccount">
+      <td>
+        <span class="credit"> {{ formatCurrency(info.in) }} </span>
+      </td>
+      <td>
+        {{ info.account.account_name }}
+      </td>
+      <td>
+        <span class="debit"> {{ formatCurrency(info.out) }}</span>
+      </td>
+    </tr>
+    <tr v-for="info in transactionsPerTag">
+      <td>
+        <span class="credit"> {{ formatCurrency(info.in) }} </span>
+      </td>
+      <td>
+        <CatLabel
+          :name="info.tag.name"
+          :category="info.tag.category"
+          @click="setTagFilter(info.tag)"
+        />
+      </td>
+      <td>
+        <span class="debit"> {{ formatCurrency(info.out) }}</span>
+      </td>
+    </tr>
   </div>
 
   <DataTable
